@@ -164,9 +164,11 @@
     (data.sort :key (fn [x] (get x "day_index")))
 
     (setv output [[] [] [] [] []])
-    (setv days   (lfor [_ y] (groupby data (fn [x] (get x "day_index")))
-                             (list y)))
-    (for [[idx day] (enumerate days)]
+    (setv days (dfor x data [(get x "day_index") []]))
+    (for [x data]
+         (.append (. days[(get x "day_index")]) x))
+
+    (for [[idx day] (days.items)]
       (for [[x y] (groupby day (fn [x] (get x "time_index")))]
         (-> (. output[idx])
             (.append (list y)))))
