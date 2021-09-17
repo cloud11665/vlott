@@ -71,7 +71,7 @@
           now   (datetime.now))
     (setv week-offset (timedelta :weeks offset)
           last-monday (+ today (timedelta :days (- (today.weekday))) week-offset)
-          next-friday (+ last_monday (timedelta :days 4) week-offset))
+          next-friday (+ last_monday (timedelta :days 4)))
 
     (setv resp (requests.post
                 :url "https://v-lo-krakow.edupage.org/timetable/server/currenttt.js?__func=curentttGetData"
