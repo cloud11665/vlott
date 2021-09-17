@@ -163,11 +163,14 @@
     ;; for whatever reason edupage doesn't return sorted data
     (data.sort :key (fn [x] (get x "day_index")))
 
+    (setv output [[] [] [] [] []])
     (setv days   (lfor [_ y] (groupby data (fn [x] (get x "day_index")))
-                             (list y))
-          output (lfor [idx day] (enumerate days)
-                       [x y] (groupby day (fn [x] (get x "time_index")))
                              (list y)))
+    (for [[idx day] (enumerate days)]
+      (for [[x y] (groupby day (fn [x] (get x "time_index")))]
+        (-> (. output[idx])
+            (.append (list y)))))
+
     (if json?
         (return (json.dumps output
                             :ensure-ascii False)))
