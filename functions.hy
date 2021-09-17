@@ -34,9 +34,9 @@
   (return teacher))
 
 (defn prep-classroom [^str classroom]
-  (cond [(= classroom "iinf3") (return "inf3 (13B)")]
-        [(= classroom "inf4") (return "inf4 (20)")]
-        [(= classroom "inf3") (return "inf3 (13B)")])
+  (cond [(= classroom "iinf3") (return "13B")]
+        [(= classroom "inf4") (return "20")]
+        [(= classroom "inf3") (return "13B")])
   (return classroom))
 
 (defn prep-group [^str group]
@@ -45,10 +45,14 @@
                  (.join "")))
   (cond [(= group "wychowanie fizyczne_dz") (return "wf dziewczyny")]
         [(= group "wychowanie fizyczne_ch") (return "wf chłopcy")]
-        [(and (group.startswith "język") num) (return f"język {num}")]
+       ;[(and (group.startswith "język") num) (return f"język {num}")]
         [(in "_" group) (return (group.replace "_" " "))]
         [num (return f"{(get group (slice (- (len num))))} {num}")])
   (return group))
+
+(defn prep-subj [^str subj]
+  (cond [(= subj "język francuski") (return "Język francuski")])
+  (return subj))
 
 (defn prep-subj-sh [^str subj]
   (cond [(= subj "fran") (return "J.francuski")]
@@ -121,7 +125,8 @@
                color     (-> (obj.get "colors" [default-color])
                              first)
                subject   (-> (. lut["subjects"]["id"]["long"])
-                             (.get subj-id ""))
+                             (.get subj-id "")
+                             (prep-subj))
                subj-sh   (-> (. lut["subjects"]["id"]["short"])
                              (.get subj-id "")
                              (prep-subj-sh))
@@ -162,6 +167,12 @@
 
     ;; for whatever reason edupage doesn't return sorted data
     (data.sort :key (fn [x] (get x "day_index")))
+
+    (for [x data]
+         (if (= (-> (get x "subject")
+                   (.lower))
+                "religia")
+             (setv (. x["group"]) "religia 1")))
 
     (setv output [[] [] [] [] []])
     (setv days (dfor x data [(get x "day_index") []]))
