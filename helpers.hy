@@ -17,7 +17,7 @@
 
 (setv ||| (eval "..."))
 
-(with-decorator (client.cache (* 7 24 60 60))
+(with-decorator (client.cache (* 24 60 60))
   (defn cached-lut []
     (print "a")
     (setv today (datetime.today)
@@ -34,7 +34,7 @@
                 :json {
                  "__args" [
                    None
-                   year
+                   2021
                    {
                      "vt_filter" {
                        "datefrom" (last-monday.strftime "%Y-%m-%d")
