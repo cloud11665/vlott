@@ -87,7 +87,7 @@
                   "__args" [
                      None
                      {
-                       "year" now.year
+                       "year" 2021 
                        "datefrom" (last-monday.strftime "%Y-%m-%d")
                        "dateto" (next-friday.strftime "%Y-%m-%d")
                        "id" (get lut "class" "idr" klass)
@@ -169,20 +169,26 @@
     (data.sort :key (fn [x] (get x "day_index")))
 
     (for [x data]
-         (if (= (-> (get x "subject")
-                   (.lower))
-                "religia")
-             (setv (. x["group"]) "religia 1")))
+      (if (= (-> (get x "subject")
+                 (.lower))
+             "religia")
+          (setv (. x["group"]) "religia 1")))
 
     (setv output [[] [] [] [] []])
     (setv days (dfor x data [(get x "day_index") []]))
+    (pprint days)
     (for [x data]
-         (.append (. days[(get x "day_index")]) x))
+      (.append (. days[(get x "day_index")]) x))
 
     (for [[idx day] (days.items)]
       (for [[x y] (groupby day (fn [x] (get x "time_index")))]
         (-> (. output[idx])
             (.append (list y)))))
+
+    (setv sorted-output [])
+    (for [day output]
+      (setv day)
+      )
 
     (if json?
         (return (json.dumps output
