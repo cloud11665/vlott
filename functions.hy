@@ -37,7 +37,7 @@
   (cond [(= classroom "iinf3") (return "13B")]
         [(= classroom "inf4") (return "20")]
         [(= classroom "inf3") (return "13B")]
-        [(= classroom "aeorbik" (return "aerobik"))])
+        [(= classroom "aeorbik") (return "aerobik")])
   (return classroom))
 
 (defn prep-group [^str group]
