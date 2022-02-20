@@ -47,7 +47,7 @@
   (cond [(= group "wychowanie fizyczne_dz") (return "wf dziewczyny")]
         [(= group "wychowanie fizyczne_ch") (return "wf chłopcy")]
        ;[(and (group.startswith "język") num) (return f"język {num}")]
-        [(in "_" group) (return (group.replace "_" " "))]
+        [(in "_" group) (return (prep-group (group.replace "_" " ")))]
         [(group.startswith "język niemiecki") (return "")]
         [(group.startswith "język angielski") (return "")]
         [num (return f"{(get group (slice (- (len num))))} {num}")]
