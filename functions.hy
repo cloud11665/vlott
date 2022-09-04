@@ -91,7 +91,7 @@
                   "__args" [
                      None
                      {
-                       "year" 2021
+                       "year" 2022
                        "datefrom" (last-monday.strftime "%Y-%m-%d")
                        "dateto" (next-friday.strftime "%Y-%m-%d")
                        "id" (get lut "class" "idr" klass)

@@ -30,6 +30,7 @@
     Returns a sorted array of `str` representing every class in the timetable.\n
     Response model: `List[str]`
     "
+    ;(print (cached-lut))
     (setv vals (-> (cached-lut)
                    (get "class" "id")
                    (.values)
@@ -91,5 +92,11 @@
                          Run it using a real operating system...
                          Exiting.")))
   (uvicorn.run app
-               :port 7001
-               :log-level "debug"))
+               :port 7002
+               :log-level "debug"
+;               :workers 2
+;               :worker_class "uvicorn.workers.UvicornH11Worker"
+;               :timeout 30
+;               :keepalive 2
+               ))
+

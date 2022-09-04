@@ -17,7 +17,7 @@
 
 (setv ||| (eval "..."))
 
-(with-decorator (client.cache (* 24 60 60))
+(with-decorator (client.cache (* 60 60))
   (defn cached-lut []
     (print "a")
     (setv today (datetime.today)
@@ -34,7 +34,7 @@
                 :json {
                  "__args" [
                    None
-                   2021
+                   2022
                    {
                      "vt_filter" {
                        "datefrom" (last-monday.strftime "%Y-%m-%d")
@@ -103,6 +103,8 @@
 
     (for [klass (get data "tables" 3 "data_rows")]
       (setv [x y _] (klass.values))
+      (setv y (+ (get y 0) "_" y))
+;      (print x y)
       (setv (. lut["class"]["id"][x]) y
             (. lut["class"]["idr"][y]) x))
 
