@@ -151,7 +151,8 @@
                                (.join "" id)
                                (-> (. lut["class"]["room"]["id"])
                                    (.get id "")
-                                   (prep-classroom))))
+                                   (prep-classroom)))
+               removed   (or (obj.get "removed") False))
 
          (if override-color
              (setv color override-color))
@@ -167,6 +168,7 @@
            "group"         group
            "date"          date
            "day_index"     day-idx
+           "removed"       removed
          }))
 
     ;; for whatever reason edupage doesn't return sorted data
