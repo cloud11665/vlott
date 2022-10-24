@@ -23,7 +23,8 @@
         ^int duration None
         ^str group None
         ^str date None
-        ^int day-index None))
+        ^int day-index None
+        ^bool removed None))
 
 (defclass TimeIndex [BaseModel]
   (setv ^str begin None
