@@ -7,7 +7,7 @@ def envor(x, y):
 
 LEGACY_ADDR = envor("VLOTT_LEGACY_ADDR", "127.0.0.1:8000")
 WORKERS = envor("VLOTT_WORKERS", "4")
+V1_ENABLED = envor("VLOTT_USE_V1", "1")
 
 if __name__ == "__main__":
-	os.environ["VLOTT_LEGACY_ADDR"] = LEGACY_ADDR
 	os.system(f"gunicorn -k uvicorn.workers.UvicornWorker app:app --log-level warn -w {WORKERS}")
