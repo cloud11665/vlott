@@ -11,7 +11,7 @@ router = APIRouter(tags = ["v1"])
 client = httpx.AsyncClient(base_url="http://"+os.environ["VLOTT_LEGACY_ADDR"])
 
 async def legacy_proxy(req: Request):
-	url = httpx.URL(path=req.url.path.lstrip("/v1"), query=req.url.query.encode("utf8"))
+	url = httpx.URL(path=req.url.path[3:], query=req.url.query.encode("utf8"))
 	rp_req = client.build_request(
 		req.method, url,
 		headers=req.headers.raw,
