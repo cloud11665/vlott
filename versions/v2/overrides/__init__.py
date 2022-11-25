@@ -14,8 +14,9 @@ def parse():
 	key-value dictionary.
 	"""
 	if not os.path.exists("versions/v2/overrides/gdata.tsv"):
-		logging.error("file \"versions/v2/overrides/gdata.tsv\" not found, aborting")
-		exit(1)
+		logging.info("file \"versions/v2/overrides/gdata.tsv\" not found, "
+		             "names will be inconsistent")
+		return dict()
 
 	fh = open("versions/v2/overrides/gdata.tsv", "r")
 	table = {}
