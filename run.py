@@ -5,8 +5,8 @@ def envor(x, y):
 	os.environ[x] = os.environ.get(x, y)
 	return os.environ[x]
 
-LEGACY_ADDR = envor("VLOTT_LEGACY_ADDR", "127.0.0.1:8000")
-WORKERS = envor("VLOTT_WORKERS", "4")
+LEGACY_ADDR = envor("VLOTT_LEGACY_ADDR", "127.0.0.1:70002")
+WORKERS = envor("VLOTT_WORKERS", "2")
 V1_ENABLED = envor("VLOTT_USE_V1", "1")
 
 if __name__ == "__main__":
