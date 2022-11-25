@@ -26,7 +26,7 @@ class Table(Generic[T]):
 	def __init__(self, data_rows: List[T]):
 		self._data_rows = list(data_rows)
 		self._lut = dict()
-		
+
 		for field in fields(self._data_rows[0]):
 			if field.name == "id": continue
 			setattr(self, field.name, dict())
@@ -105,7 +105,7 @@ def get_data() -> DBAccessor:
 		"__args": [
 			None,
 			2022,
-			{	
+			{
 				"vt_filter":{
 					"datefrom": utils.date.monday_before().strftime(utils.date.FMT),
 					"dateto": utils.date.friday_after().strftime(utils.date.FMT)
@@ -237,6 +237,7 @@ class TTentry:
 	color: str
 	time_index: int
 	duration: int
+	group_raw: str
 	group: str
 	date: str
 	day_index: int
@@ -249,5 +250,6 @@ class TTabsent:
 	time_index: int
 	day_index: int
 	name: str
-	date: str	
+	date: str
+	group_raw: str
 	group: str

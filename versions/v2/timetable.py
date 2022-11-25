@@ -134,7 +134,7 @@ def get_timetable_data(_date: datetime, class_id: str, raw: bool):
 		teacher   = table.teachers[(obj["teacherids"] or ["0"])[0]]
 		classroom = table.classrooms[(obj["classroomids"] or ["0"])[0]]
 		subject   = table.subjects[obj["subjectid"]]
-		
+
 		# Edupage never ceases to suprise us with yet another standard oddity !
 		start = time.fromisoformat(obj["starttime"])
 		if start < time(7, 10):    starttime = "07:10"
@@ -146,6 +146,7 @@ def get_timetable_data(_date: datetime, class_id: str, raw: bool):
 
 		period    = table.periods[table.periods.starttime[starttime]]
 		type_     = obj["type"]
+		group_raw = (obj["groupnames"] or [None])[0] or ""
 
 		if type_ == "card":
 			data.append(asdict(TTentry(
@@ -156,7 +157,8 @@ def get_timetable_data(_date: datetime, class_id: str, raw: bool):
 				color         = (obj["colors"] or ["#d0ffd0"])[0],
 				time_index    = int(table.periods.starttime[obj["starttime"]]),
 				duration      = obj["durationperiods"] or 1,
-				group         = prep_group((obj["groupnames"] or [None])[0], obj),
+				group_raw     = group_raw,
+				group         = prep_group(group_raw, obj),
 				date          = date_.strftime("%Y-%m-%d"),
 				day_index     = (date_ - monday_before).days,
 				removed       = obj["removed"] or False,
@@ -170,13 +172,14 @@ def get_timetable_data(_date: datetime, class_id: str, raw: bool):
 		else:
 			duration = obj["durationperiods"] or 1
 			time_index = int(table.periods.starttime[starttime])
-			if date_.weekday() == 4 and duration + time_index > 9: 
+			if date_.weekday() == 4 and duration + time_index > 9:
 				duration = 9 - time_index
 			events.append(TTabsent(
 				date       = date_.strftime("%Y-%m-%d"),
 				day_index  = (date_ - monday_before).days,
 				duration   = duration,
-				group      = prep_group((obj["groupnames"] or [None])[0], obj),
+				group_raw  = group_raw,
+				group      = prep_group(group_raw, obj),
 				name       = obj["name"],
 				time_index = time_index,
 			))
