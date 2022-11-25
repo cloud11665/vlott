@@ -2,7 +2,7 @@ import dataclasses
 import re
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import List, Mapping, Optional, Tuple
+from typing import List, Mapping, Optional, Tuple, Union
 
 import requests
 from lxml import html
@@ -57,7 +57,7 @@ _time_regex = re.compile(r"\(?(\d+)\s-\s(\d+)\)?|\(?(\d+)\)?|")
 @dataclass()
 class Substitution:
 	type: str
-	time: Optional[int | Tuple[int, int]] 
+	time: Optional[Union[int, Tuple[int, int]]] 
 	data: SBST_Unknown               \
 		| SBST_Substitution          \
 		| SBST_Cancellation          \
@@ -101,7 +101,7 @@ class Substitution:
 @dataclass()
 class SubstitutionUnion:
 	type: str
-	time: Optional[int | Tuple[int, int]] 
+	time: Optional[Union[int, Tuple[int, int]]]
 	content: str
 	group: Optional[str]
 	subject_before: Optional[str]

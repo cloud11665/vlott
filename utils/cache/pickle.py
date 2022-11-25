@@ -1,11 +1,9 @@
 from datetime import datetime as dt
-from functools import cache
 import json
 import os
 from pathlib import Path
 import pickle
-from time import sleep, time
-from typing import Callable
+from typing import Callable, Union
 from functools import partial
 
 sentinel = object()
@@ -21,8 +19,8 @@ def arg_stringify(*args, **kwargs) -> str:
 def pickle_cache(timeout: int|None = 900,
 	             arg_transform_fn: Callable[..., str] = arg_stringify,
 	             cache_directory: Path = Path("./cache/"),
-				 timeout_rule: Callable[..., bool] | None = None,
-				 timeout_env: str | None = "PKLCACHE_NO_TIMEOUT"):
+				 timeout_rule: Union[Callable[..., bool], None] = None,
+				 timeout_env: Union[str, None] = "PKLCACHE_NO_TIMEOUT"):
 	timeout = timeout or 1e18
 	os.makedirs(cache_directory, exist_ok=True)
 	def transformer(fn: Callable[..., str], *args, **kwargs):
