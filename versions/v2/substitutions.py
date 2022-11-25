@@ -58,11 +58,13 @@ _time_regex = re.compile(r"\(?(\d+)\s-\s(\d+)\)?|\(?(\d+)\)?|")
 class Substitution:
 	type: str
 	time: Optional[Union[int, Tuple[int, int]]] 
-	data: SBST_Unknown               \
-		| SBST_Substitution          \
-		| SBST_Cancellation          \
-		| SBST_Teacher_Decl          \
-		| SBST_Teacher_Decl_Untagged
+	data: Union[
+		SBST_Unknown,
+		SBST_Substitution,
+		SBST_Cancellation,
+		SBST_Teacher_Decl,
+		SBST_Teacher_Decl_Untagged
+	]
 	content: str
 
 	def __init__(self, time: str, data: str):
