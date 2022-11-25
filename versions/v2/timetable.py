@@ -67,7 +67,7 @@ def prep_group(x: str, ctx):
 			"r": "rosyjski",
 			"w": "włoski"
 		}[tok.lower()]
-		type_ = ["mały", "duży"][tok.islower()]
+		type_ = ["mały", "duży"][tok.isupper()]
 
 		return f"język {name} {type_} {idx}"
 	return canonicalize(x)
