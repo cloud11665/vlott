@@ -16,7 +16,7 @@ def arg_stringify(*args, **kwargs) -> str:
 	if kw: kw = "$" + kw
 	return json.dumps(args, default=str, separators=("",""))[1:-1] + kw
 
-def pickle_cache(timeout: int|None = 900,
+def pickle_cache(timeout: Union[int, None] = 900,
 	             arg_transform_fn: Callable[..., str] = arg_stringify,
 	             cache_directory: Path = Path("./cache/"),
 				 timeout_rule: Union[Callable[..., bool], None] = None,
