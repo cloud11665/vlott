@@ -55,29 +55,10 @@ def prep_group(x: str, ctx):
 	if not x: return ""
 	if x in (ovr := get_overrides("group")): return ovr[x]
 
-	if (reg := re.match(r"(\d)(\w)\dkl\-(\d+)", x)):
+	if reg := re.match(r"([1-4])([a-zA-Z]|DSD)[1-4]?kl[1-4]?-(\d+)", x):
 		cnt, tok, idx = reg.groups()
 		cnt, idx = int(cnt), int(idx)
-		name = {
-			"a": "angielski",
-			"n": "niemiecki",
-			"f": "francuski",
-			"h": "hiszpański",
-			"r": "rosyjski",
-			"w": "włoski"
-		}[tok.lower()]
-		type_ = ["mały", "duży"][tok.islower()]
-
-		return f"język {name} {type_} {idx}"
-	return canonicalize(x)
-
-def prep_group(x: str, ctx):
-	if not x: return ""
-	if x in (ovr := get_overrides("group")): return ovr[x]
-
-	if (reg := re.match(r"(\d)(\w)\dkl\-(\d+)", x)):
-		cnt, tok, idx = reg.groups()
-		cnt, idx = int(cnt), int(idx)
+		if tok.lower() == "dsd": return f"DSD {idx}"
 		name = {
 			"a": "angielski",
 			"n": "niemiecki",
@@ -138,7 +119,7 @@ def get_timetable_data(_date: datetime, class_id: str, raw: bool):
 
 	if not resp.ok:
 		return [[]]*5
-	
+
 	resp = resp.json()["r"]["ttitems"]
 	data: List[TTentry] = []
 	events: List[TTabsent] = []
@@ -168,7 +149,7 @@ def get_timetable_data(_date: datetime, class_id: str, raw: bool):
 				duration      = obj["durationperiods"] or 1,
 				group         = prep_group((obj["groupnames"] or [None])[0], obj),
 				date          = date_.strftime("%Y-%m-%d"),
-				day_index     = (date_ - monday_before).days - 1,
+				day_index     = (date_ - monday_before).days,
 				removed       = obj["removed"] or False,
 				raw = TTentryRaw(
 					subject   = subject,
@@ -180,7 +161,7 @@ def get_timetable_data(_date: datetime, class_id: str, raw: bool):
 		else:
 			duration = obj["durationperiods"] or 1
 			time_index = int(table.periods.starttime[obj["starttime"]])
-			if date_.weekday() == 4 and duration + time_index > 9: 
+			if date_.weekday() == 4 and duration + time_index > 9:
 				duration = 9 - time_index
 			events.append(TTabsent(
 				date       = date_.strftime("%Y-%m-%d"),
@@ -190,11 +171,11 @@ def get_timetable_data(_date: datetime, class_id: str, raw: bool):
 				name       = obj["name"],
 				time_index = time_index,
 			))
-	
+
 	# Stupid edupage rolls a D100 dice, and returns unsorted data
 	# once every 100 requests.
 	data.sort(key = lambda x: x["day_index"])
-	
+
 	# Allow filtering by adding a bogus group.
 	for x in data:
 		if x["subject"] == "religia":
