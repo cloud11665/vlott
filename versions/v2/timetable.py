@@ -55,29 +55,10 @@ def prep_group(x: str, ctx):
 	if not x: return ""
 	if x in (ovr := get_overrides("group")): return ovr[x]
 
-	if (reg := re.match(r"(\d)(\w)\dkl\-(\d+)", x)):
+	if reg := re.match(r"([1-4])([a-zA-Z]|DSD)[1-4]?kl[1-4]?-(\d+)", x):
 		cnt, tok, idx = reg.groups()
 		cnt, idx = int(cnt), int(idx)
-		name = {
-			"a": "angielski",
-			"n": "niemiecki",
-			"f": "francuski",
-			"h": "hiszpański",
-			"r": "rosyjski",
-			"w": "włoski"
-		}[tok.lower()]
-		type_ = ["mały", "duży"][tok.islower()]
-
-		return f"język {name} {type_} {idx}"
-	return canonicalize(x)
-
-def prep_group(x: str, ctx):
-	if not x: return ""
-	if x in (ovr := get_overrides("group")): return ovr[x]
-
-	if (reg := re.match(r"(\d)(\w)\dkl\-(\d+)", x)):
-		cnt, tok, idx = reg.groups()
-		cnt, idx = int(cnt), int(idx)
+		if tok.lower() == "dsd": return f"DSD {idx}"
 		name = {
 			"a": "angielski",
 			"n": "niemiecki",
