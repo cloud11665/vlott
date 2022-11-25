@@ -1,0 +1,8 @@
+testing/
+/cache/
+.env/
+.vscode/
+tools/raw.txt
+versions/v2/overrides/*.json
+versions/v2/overrides/*.tsv
+__pycache__/
