@@ -1,6 +1,6 @@
 from collections import defaultdict
 from dataclasses import dataclass, asdict
-from datetime import date, datetime
+from datetime import date, datetime, time
 from itertools import groupby
 from typing import List
 import os
@@ -124,7 +124,6 @@ def get_timetable_data(_date: datetime, class_id: str, raw: bool):
 	data: List[TTentry] = []
 	events: List[TTabsent] = []
 
-
 	# TODO: Add "group_short" support and give language groups special treatment
 	#       Idk if it should be stored in a db globally or what. May just resort
 	#       to db.json with fs locks and some ram cache on top of that.
@@ -135,7 +134,17 @@ def get_timetable_data(_date: datetime, class_id: str, raw: bool):
 		teacher   = table.teachers[(obj["teacherids"] or ["0"])[0]]
 		classroom = table.classrooms[(obj["classroomids"] or ["0"])[0]]
 		subject   = table.subjects[obj["subjectid"]]
-		period    = table.periods[table.periods.starttime[obj["starttime"]]]
+		
+		# Edupage never ceases to suprise us with yet another standard oddity !
+		start = time.fromisoformat(obj["starttime"])
+		if start < time(7, 10):    starttime = "07:10"
+		elif start > time(16, 30): starttime = "16:30"
+		elif obj["starttime"] not in table.periods.starttime:
+			logging.error(f"Unusual starttime encountered ({obj['starttime']})")
+			continue
+		else: starttime = obj["starttime"]
+
+		period    = table.periods[table.periods.starttime[starttime]]
 		type_     = obj["type"]
 
 		if type_ == "card":
@@ -160,8 +169,8 @@ def get_timetable_data(_date: datetime, class_id: str, raw: bool):
 			)))
 		else:
 			duration = obj["durationperiods"] or 1
-			time_index = int(table.periods.starttime[obj["starttime"]])
-			if date_.weekday() == 4 and duration + time_index > 9:
+			time_index = int(table.periods.starttime[starttime])
+			if date_.weekday() == 4 and duration + time_index > 9: 
 				duration = 9 - time_index
 			events.append(TTabsent(
 				date       = date_.strftime("%Y-%m-%d"),
