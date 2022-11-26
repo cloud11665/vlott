@@ -13,7 +13,7 @@ import requests
 import utils.date
 from utils.cache.pickle import pickle_cache
 from utils.cache.timed import timed_lru_cache
-from versions.v2.schema import Classroom, Subject, TTabsent, TTentry, TTentryRaw, Teacher, get_data
+from versions.v2.schema import *
 from versions.v2 import overrides
 from pydantic.color import Color
 
@@ -24,13 +24,6 @@ class Lesson:
 	teacher: str
 	classroom: str
 	color: Color
-
-def trule(*args, **kwargs):
-	now = datetime.now()
-	date = args[0]
-	if now < date:
-		return 3600 * 6
-	return 1e18
 
 @timed_lru_cache(60*60)
 def get_overrides(name:str):
@@ -85,8 +78,15 @@ def prep_classroom(x: Classroom, ctx):
 	if x.short in ovr: return ovr[x.short]
 	return x.short
 
+def trule(*args, **kwargs):
+	now = datetime.now()
+	date = args[0]
+	if now < date:
+		return 3600 * 6
+	return 1e18
+
 @pickle_cache(timeout_rule = trule)
-def get_timetable_data(_date: datetime, class_id: str, raw: bool):
+def get_timetable_data_raw(_date: datetime, class_id: str):
 	_date = datetime.date(_date)
 	year = _date.year
 	if _date.month < 7:
@@ -118,9 +118,17 @@ def get_timetable_data(_date: datetime, class_id: str, raw: bool):
 	)
 
 	if not resp.ok:
-		return [[]]*5
+		logging.warn(f"get_timetable_data_raw: request failed. args=({_date}, {class_id})")
+		return []
 
-	resp = resp.json()["r"]["ttitems"]
+	return resp.json()["r"]["ttitems"]
+
+@timed_lru_cache(5*60)
+def get_timetable_data(_date: datetime, class_id: str, raw: bool):
+	resp = get_timetable_data_raw(_date, class_id)
+	_date = datetime.date(_date)
+	table = get_data()
+	monday_before = utils.date.monday_before(_date)
 	data: List[TTentry] = []
 	events: List[TTabsent] = []
 
