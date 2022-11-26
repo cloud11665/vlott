@@ -7,6 +7,8 @@ from typing import List, Mapping, Optional, Tuple, Union
 import requests
 from lxml import html
 from utils.cache.pickle import pickle_cache
+from utils.date import next_weekday
+
 
 @dataclass
 class SBST_Unknown:...
@@ -57,7 +59,7 @@ _time_regex = re.compile(r"\(?(\d+)\s-\s(\d+)\)?|\(?(\d+)\)?|")
 @dataclass()
 class Substitution:
 	type: str
-	time: Optional[Union[int, Tuple[int, int]]] 
+	time: Optional[Union[int, Tuple[int, int]]]
 	data: Union[
 		SBST_Unknown,
 		SBST_Substitution,
@@ -77,7 +79,7 @@ class Substitution:
 		else:
 			self.type = "unknown"
 			self.data = SBST_Unknown()
-		
+
 		self.time = None
 		if any((match := _time_regex.match(time)).groups()):
 			if match.groups()[2]:
@@ -93,7 +95,7 @@ class Substitution:
 
 		repr_fmt = ", ".join(f"{k}={repr(v)}" for k,v in fields.items())
 		return f"{self.__class__.__name__}({repr_fmt})"
-	
+
 	@staticmethod
 	def fromHtmlElement(elem: html.HtmlElement) -> "Substitution":
 		data = elem.xpath(".//div[@class='info']/span/text()") + [""]
@@ -120,11 +122,15 @@ class SubstitutionUnion:
 		return fields
 
 def trule(*args, **kwargs):
-	now = datetime.now()
-	date = args[0]
-	if now < date:
-		return 3600 * 1
-	return 1e18
+	today = datetime.today()
+	_date = args[0]
+	if _date < today:  # Past, cache forever
+		return 1e18
+	if _date == today and 6 <= datetime.now().hour < 18:  # Today, during lessons
+		return 5 * 60
+	if _date <= next_weekday(today):  # Before next school day
+		return 30 * 60
+	return 120 * 60  # Future
 
 @pickle_cache(timeout_rule = trule)
 def get_substitution_data(date_: date) -> Mapping[str, List[Substitution]]:
