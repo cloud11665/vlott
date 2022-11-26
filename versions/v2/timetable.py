@@ -146,7 +146,7 @@ def get_timetable_data(_date: datetime, class_id: str, raw: bool):
 
 		period    = table.periods[table.periods.starttime[starttime]]
 		type_     = obj["type"]
-		group_raw = (obj["groupnames"] or [None])[0] or ""
+		group_raw = (obj["groupnames"] or [""])[0]
 
 		if type_ == "card":
 			data.append(asdict(TTentry(
