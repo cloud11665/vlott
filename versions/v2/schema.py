@@ -1,6 +1,4 @@
-from ast import Sub
 from dataclasses import dataclass, fields, asdict
-from pprint import pprint
 from typing import List, TypeVar, Generic, Dict, Optional
 from datetime import time
 from enum import Enum
@@ -229,16 +227,26 @@ class TTentryRaw:
 	classroom: Classroom
 
 @dataclass
+class TGroup:
+	name: str
+	raw: str
+	short: str
+
+@dataclass
+class TTeacher:
+	name: str
+	short: str
+
+@dataclass
 class TTentry:
 	subject: str
 	subject_short: str
-	teacher: str
+	teacher: TTeacher
 	classroom: str
 	color: str
 	time_index: int
 	duration: int
-	group_raw: str
-	group: str
+	group: Optional[TGroup]
 	date: str
 	day_index: int
 	removed: bool
@@ -251,5 +259,4 @@ class TTabsent:
 	day_index: int
 	name: str
 	date: str
-	group_raw: str
-	group: str
+	group: Optional[TGroup]

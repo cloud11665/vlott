@@ -1,12 +1,15 @@
 import dataclasses
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from datetime import date, datetime
 from typing import List, Mapping, Optional, Tuple, Union
 
 import requests
 from lxml import html
 from utils.cache.pickle import pickle_cache
+from versions.v2.processors import prep_group
+from versions.v2.schema import TGroup
+
 
 @dataclass
 class SBST_Unknown:...
@@ -57,7 +60,7 @@ _time_regex = re.compile(r"\(?(\d+)\s-\s(\d+)\)?|\(?(\d+)\)?|")
 @dataclass()
 class Substitution:
 	type: str
-	time: Optional[Union[int, Tuple[int, int]]] 
+	time: Optional[Union[int, Tuple[int, int]]]
 	data: Union[
 		SBST_Unknown,
 		SBST_Substitution,
@@ -77,7 +80,7 @@ class Substitution:
 		else:
 			self.type = "unknown"
 			self.data = SBST_Unknown()
-		
+
 		self.time = None
 		if any((match := _time_regex.match(time)).groups()):
 			if match.groups()[2]:
@@ -93,7 +96,7 @@ class Substitution:
 
 		repr_fmt = ", ".join(f"{k}={repr(v)}" for k,v in fields.items())
 		return f"{self.__class__.__name__}({repr_fmt})"
-	
+
 	@staticmethod
 	def fromHtmlElement(elem: html.HtmlElement) -> "Substitution":
 		data = elem.xpath(".//div[@class='info']/span/text()") + [""]
@@ -105,7 +108,7 @@ class SubstitutionUnion:
 	type: str
 	time: Optional[Union[int, Tuple[int, int]]]
 	content: str
-	group: Optional[str]
+	group: Optional[TGroup]
 	subject_before: Optional[str]
 	subject: str
 	teacher_before: Optional[str]
@@ -114,7 +117,12 @@ class SubstitutionUnion:
 
 	@staticmethod
 	def saturate(sub: Substitution) -> "SubstitutionUnion":
-		fields = dataclasses.asdict(sub)
+		fields = asdict(sub)
+
+		if "group" in fields["data"]:
+			group = prep_group(fields["data"]["group"])
+			fields["data"]["group"] = None if group is None else asdict(group)
+
 		fields.update(fields["data"])
 		del fields["data"]
 		return fields
