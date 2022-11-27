@@ -1,20 +1,11 @@
 from collections import defaultdict
-from dataclasses import dataclass, asdict
-from datetime import date, datetime, time
+from datetime import date, datetime
 from itertools import groupby
-from typing import List
-import os
-import json
-import re
 import logging
-
-import requests
-
 import utils.date
-from utils.cache.pickle import pickle_cache
 from utils.cache.timed import timed_lru_cache
+from versions.v2.processors import prep_subject, prep_subject_short, prep_teacher, prep_classroom, prep_group
 from versions.v2.schema import *
-from versions.v2 import overrides
 from pydantic.color import Color
 
 @dataclass
@@ -24,59 +15,6 @@ class Lesson:
 	teacher: str
 	classroom: str
 	color: Color
-
-@timed_lru_cache(60*60)
-def get_overrides(name:str):
-	path = os.path.join("versions/v2/overrides/", name + ".json")
-	if not os.path.exists(path): return {}
-	with open(path, "r") as fh:
-		return json.load(fh)
-
-def canonicalize(x): return x.replace("_", " ").lower()
-
-def prep_subject(x: Subject, ctx):
-	if not x: return ""
-	if x.name in (ovr := get_overrides("subject")): return ovr[x.name]
-	return canonicalize(x.name)
-
-def prep_subject_short(x: Subject, ctx):
-	if not x: return ""
-	if x.short in (ovr := get_overrides("subject_short")): return ovr[x.short]
-	return canonicalize(x.short)
-
-def prep_group(x: str, ctx):
-	if not x: return ""
-	if x in (ovr := get_overrides("group")): return ovr[x]
-
-	if reg := re.match(r"([1-4])([a-zA-Z]|DSD)[1-4]?kl[1-4]?-(\d+)", x):
-		cnt, tok, idx = reg.groups()
-		cnt, idx = int(cnt), int(idx)
-		if tok.lower() == "dsd": return f"DSD {idx}"
-		name = {
-			"a": "angielski",
-			"n": "niemiecki",
-			"f": "francuski",
-			"h": "hiszpański",
-			"r": "rosyjski",
-			"w": "włoski"
-		}[tok.lower()]
-		type_ = ["mały", "duży"][tok.isupper()]
-
-		return f"język {name} {type_} {idx}"
-	return canonicalize(x)
-
-def prep_teacher(x: Teacher, ctx):
-	if not x: return ""
-	ovr = overrides.parse()
-	if (key := x.short.lower()) in ovr: return ovr[key]
-	logging.info(f"No name expansion for key \"{x.short}\"")
-	return x.short #Don't canonicalize
-
-def prep_classroom(x: Classroom, ctx):
-	if not x: return ""
-	ovr = get_overrides("classroom")
-	if x.short in ovr: return ovr[x.short]
-	return x.short
 
 def trule(*args, **kwargs):
 	now = datetime.now()
@@ -160,13 +98,13 @@ def get_timetable_data(_date: datetime, class_id: str, raw: bool):
 			data.append(asdict(TTentry(
 				subject       = prep_subject(subject, obj),
 				subject_short = prep_subject_short(subject, obj),
-				teacher       = prep_teacher(teacher, obj),
+				teacher       = prep_teacher(teacher),
 				classroom     = prep_classroom(classroom, obj),
 				color         = (obj["colors"] or ["#d0ffd0"])[0],
 				time_index    = int(table.periods.starttime[obj["starttime"]]),
 				duration      = obj["durationperiods"] or 1,
 				group_raw     = group_raw,
-				group         = prep_group(group_raw, obj),
+				group         = prep_group(group_raw),
 				date          = date_.strftime("%Y-%m-%d"),
 				day_index     = (date_ - monday_before).days,
 				removed       = obj["removed"] or False,
@@ -186,8 +124,7 @@ def get_timetable_data(_date: datetime, class_id: str, raw: bool):
 				date       = date_.strftime("%Y-%m-%d"),
 				day_index  = (date_ - monday_before).days,
 				duration   = duration,
-				group_raw  = group_raw,
-				group      = prep_group(group_raw, obj),
+				group      = prep_group(group_raw),
 				name       = obj["name"],
 				time_index = time_index,
 			))
