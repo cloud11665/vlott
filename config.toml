@@ -1,0 +1,10 @@
+
+threads = 1
+workers = 2
+
+[v1]
+enabled = false
+address = "http://127.0.0.1:7002"
+
+[v2]
+overrides_passwd = ""
