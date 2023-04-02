@@ -3,13 +3,16 @@ import datetime as dt
 from datetime import datetime, time
 from typing import List, Mapping, Tuple, Union
 from pathlib import Path
+import json
+from hashlib import sha256
 
+import aiofiles
 from fastapi import APIRouter
-from utils.responses import json_obj_response
 
+# from config import ovr_passwd
+from utils.responses import json_obj_response
 from versions.v2.substitutions import SubstitutionUnion, get_substitution_data
 from versions.v2.timetable import get_timetable_data
-
 from versions.v2.schema import DBresponse, TTentry, get_data, class_id_t
 
 router = APIRouter()
@@ -40,7 +43,7 @@ async def substitution_data_klass(
 	return json_obj_response([SubstitutionUnion.saturate(x) for x in data.get(classid, [])])
 
 @router.get("/ttdata",
-            response_model = Union[List[List[List[TTentry]]], Mapping[str, List[List[List[TTentry]]]]],
+            #response_model = Union[List[List[List[TTentry]]], Mapping[str, List[List[List[TTentry]]]]],
             summary = "Timetable data")
 async def timetable_data_klass(
 		classid: class_id_t = "4E",
@@ -66,9 +69,8 @@ async def timetable_data_klass(
 		return json_obj_response(
 			{klass: get_timetable_data(datetime.combine(date, time.min), klass, False) for klass in data.classes.name.keys()}
 		)
-	return json_obj_response(
-		get_timetable_data(datetime.combine(date, time.min), classid.name, raw)
-	)
+	return get_timetable_data(datetime.combine(date, time.min), classid.name, raw)
+
 
 @router.get("/get_db",
             response_model = DBresponse,
@@ -79,14 +81,14 @@ async def timetable_data(raw: bool = True):
 	"""
 	data = get_data()
 	process = lambda x: list(map(asdict, x))
-	return json_obj_response({
+	return {
 		"classes":    process(data.classes._data_rows),
 		"classrooms": process(data.classrooms._data_rows),
 		"dayparts":   process(data.dayparts._data_rows),
 		"periods":    process(data.periods._data_rows),
 		"subjects":   process(data.subjects._data_rows),
 		"teachers":   process(data.teachers._data_rows),
-	})
+	}
 
 
 @router.get("/cache_size",
@@ -94,3 +96,12 @@ async def timetable_data(raw: bool = True):
 async def get_cache_size():
 	data = [(file.name, file.stat().st_size) for file in Path("./cache").rglob("*")]
 	return [sum(x[1] for x in data), data]
+
+
+@router.get("/override/{name:str}")
+async def override_get(name: str, passwd: str):
+	# if sha256(passwd).digest() == 
+	async with aiofiles.open(f"versions/v2/overrides/{name}.json") as fh:
+		return json.loads(await fh.read())
+
+

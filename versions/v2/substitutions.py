@@ -8,6 +8,7 @@ import requests
 from lxml import html
 from utils.cache.pickle import pickle_cache
 from utils.date import next_weekday
+import logging
 
 
 @dataclass
@@ -157,7 +158,7 @@ def get_substitution_data(date_: date) -> Mapping[str, List[Substitution]]:
 	for query in queries:
 		klass = query.xpath(".//div[@class='header']/span/text()")
 		if not klass:
-			print(query)
+			logging.error(f"Unknown dom element {query}")
 			continue
 		data = query.xpath(".//div[./div[@class='period'] and ./div[@class='info']]")
 		ret[klass[0]] = [Substitution.fromHtmlElement(elem) for elem in data]

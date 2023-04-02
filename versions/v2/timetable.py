@@ -180,7 +180,7 @@ def get_timetable_data(_date: datetime, class_id: str, raw: bool):
 		else:
 			duration = obj["durationperiods"] or 1
 			time_index = int(table.periods.starttime[starttime])
-			if date_.weekday() == 4 and duration + time_index > 9:
+			if duration + time_index > 9:
 				duration = 9 - time_index
 			events.append(TTabsent(
 				date       = date_.strftime("%Y-%m-%d"),
@@ -201,12 +201,13 @@ def get_timetable_data(_date: datetime, class_id: str, raw: bool):
 		if x["subject"] == "religia":
 			x["group"] = "religia 1"
 
-	output = [[[]]*10 for _ in range(5)]
+	output = [[[]]*11 for _ in range(5)]
 	days = {x["day_index"]:[] for x in data}
 	for x in data:
 		days[x["day_index"]].append(x)
 
 	for idx, day in days.items():
+		# print(idx)
 		for x, y in groupby(day, lambda x: x["time_index"]):
 			output[idx][x] = list(y)
 
