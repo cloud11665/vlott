@@ -1,0 +1,16 @@
+services:
+  server:
+    build: .
+    networks:
+      - traefik-proxy
+      - default
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.auction.rule=Host(`vlott.dk-gl.eu`)
+      - traefik.http.routers.auction.entrypoints=https
+      - traefik.http.services.auction-backend.loadbalancer.server.port=80
+    restart: always
+networks:
+  traefik-proxy:
+    external: true
+    name: traefik-proxy
