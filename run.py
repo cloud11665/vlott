@@ -10,4 +10,4 @@ WORKERS = envor("VLOTT_WORKERS", "1")
 V1_ENABLED = envor("VLOTT_USE_V1", "1")
 
 if __name__ == "__main__":
-	os.system(f"gunicorn -k uvicorn.workers.UvicornWorker app:app --log-level warn -w {WORKERS}")
+	os.system(f"gunicorn -k uvicorn.workers.UvicornWorker app:app --log-level warn -w {WORKERS} -b 0.0.0.0:80")
