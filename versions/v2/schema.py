@@ -1,6 +1,4 @@
-from ast import Sub
 from dataclasses import dataclass, fields, asdict
-from pprint import pprint
 from typing import List, TypeVar, Generic, Dict, Optional
 from datetime import time
 from enum import Enum
@@ -104,7 +102,7 @@ def get_data() -> DBAccessor:
 	args = {
 		"__args": [
 			None,
-			2022,
+			utils.date.school_year(),
 			{
 				"vt_filter":{
 					"datefrom": utils.date.monday_before().strftime(utils.date.FMT),
