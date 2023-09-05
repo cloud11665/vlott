@@ -1,17 +1,12 @@
 from collections import defaultdict
-from dataclasses import dataclass, asdict
-from datetime import date, datetime, time
+from datetime import datetime, date
 from itertools import groupby
-from typing import List
 import os
 import json
 import re
 import logging
 
-import requests
-
 import utils.date
-from utils.cache.pickle import pickle_cache
 from utils.cache.timed import timed_lru_cache
 from versions.v2.schema import *
 from versions.v2 import overrides
@@ -88,9 +83,6 @@ def trule(*args, **kwargs):
 @pickle_cache(timeout_rule = trule)
 def get_timetable_data_raw(_date: datetime, class_id: str):
 	_date = datetime.date(_date)
-	year = _date.year
-	if _date.month < 7:
-		year = year - 1
 
 	table = get_data()
 
@@ -103,7 +95,7 @@ def get_timetable_data_raw(_date: datetime, class_id: str):
 			"__args": [
 				None,
 				{
-					"year": year,
+					"year": utils.date.school_year(_date),
 					"datefrom": monday_before.strftime(utils.date.FMT),
 					"dateto": firday_after.strftime(utils.date.FMT),
 					"id": table.classes.name[class_id],

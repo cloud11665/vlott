@@ -13,3 +13,8 @@ def next_weekday(x: date) -> date:
 	if tomorrow.weekday() >= 5:
 		tomorrow += timedelta(days=7-tomorrow.weekday())
 	return tomorrow
+
+def school_year(x: date = date.today()) -> int:
+	if x.month < 7:
+		return x.year - 1
+	return x.year
