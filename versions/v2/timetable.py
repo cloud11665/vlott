@@ -76,9 +76,9 @@ def prep_classroom(x: Classroom, ctx):
 def trule(*args, **kwargs):
 	now = datetime.now()
 	date = args[0]
-	if now < date:
-		return 3600 * 6
-	return 1e18
+	if now.date() > date.date():
+		return 1e18
+	return 3600 * 2
 
 @pickle_cache(timeout_rule = trule)
 def get_timetable_data_raw(_date: datetime, class_id: str):
